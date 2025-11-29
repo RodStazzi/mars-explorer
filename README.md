@@ -143,7 +143,7 @@ GET https://images-api.nasa.gov/captions/{nasa_id}
 
 Devuelve subtítulos en formato SRT si están disponibles.
 
-## 📊 Estructura de Datos Importante
+##  Estructura de Datos Importante
 
 ### Campos principales en `data[0]`:
 - `nasa_id`: Identificador único
@@ -188,7 +188,7 @@ Devuelve subtítulos en formato SRT si están disponibles.
 5. **Descarga directa** de contenido
 6. **Estadísticas en tiempo real**
 
-## 🚀 Cómo Usar
+##  Cómo Usar
 
 ### Instalación
 1. Descarga todos los archivos
@@ -284,7 +284,7 @@ La aplicación incluye manejo robusto de errores:
 - Navegación por teclado
 - ARIA labels donde corresponde
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 **Problema**: Las imágenes no cargan
 - Verifica conexión a internet
