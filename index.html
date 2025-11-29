@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css"
+    integrity="sha384-/frq1SRXYH/bSyou/HUp/hib7RVN1TawQYja658FEOodR/FQBKVqT9Ol+Oz3Olq5" crossorigin="anonymous" />
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous" />
+
+  <!-- Style -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <title>Mars Explorer - NASA Image Gallery</title>
+
+</head>
+
+<body>
+  <!-- Partículas de fondo animadas -->
+  <div class="stars"></div>
+  <div class="twinkling"></div>
+
+  <!-- Header mejorado -->
+  <header class="hero-section">
+    <div class="container">
+      <div class="hero-content text-center">
+        <div class="nasa-logo-container">
+          <i class="fas fa-rocket rocket-icon"></i>
+        </div>
+        <h1 class="hero-title">
+          <span class="glitch" data-text="MARS EXPLORER">MARS EXPLORER</span>
+        </h1>
+        <p class="hero-subtitle">Explorando el Planeta Rojo desde 1997</p>
+        <div class="hero-description">
+          <p>Descubre imágenes y videos capturados por las misiones rover de la NASA en Marte:<br>
+          <span class="rover-names">Perseverance • Curiosity • Opportunity • Spirit • Viking • InSight</span></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sección de búsqueda mejorada -->
+  <section class="search-section">
+    <div class="container">
+      <div class="search-card">
+        <h2 class="search-title">
+          <i class="fas fa-search-location"></i> SISTEMA DE BÚSQUEDA
+        </h2>
+        <div class="search-tabs">
+          <button class="tab-btn active" data-tab="general" onclick="switchTab('general')">
+            <i class="fas fa-globe-americas"></i> Búsqueda General
+          </button>
+          <button class="tab-btn" data-tab="rover" onclick="switchTab('rover')">
+            <i class="fas fa-robot"></i> Por Rover
+          </button>
+        </div>
+
+        <!-- Tab de Búsqueda General -->
+        <div id="general-tab" class="tab-content active">
+          <form id="generalSearchForm">
+            <div class="row align-items-end">
+              <div class="col-md-5">
+                <label class="form-label">Término de búsqueda</label>
+                <input type="text" class="form-control modern-input" id="searchQuery" 
+                       placeholder="Ej: Mars landscape, dust storm..." value="mars">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Tipo de contenido</label>
+                <select class="form-control modern-select" id="mediaType">
+                  <option value="image">Imágenes</option>
+                  <option value="video">Videos</option>
+                  <option value="image,video">Ambos</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Cantidad</label>
+                <input type="number" class="form-control modern-input" id="pageSize" 
+                       value="20" min="5" max="100">
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-search">
+                  <i class="fas fa-search"></i> BUSCAR
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tab de Búsqueda por Rover -->
+        <div id="rover-tab" class="tab-content">
+          <form id="roverSearchForm">
+            <div class="row align-items-end">
+              <div class="col-md-4">
+                <label class="form-label">Selecciona un Rover</label>
+                <select class="form-control modern-select" id="roverSelect">
+                  <option value="">-- Seleccionar Rover --</option>
+                  <option value="perseverance">Perseverance</option>
+                  <option value="curiosity">Curiosity</option>
+                  <option value="opportunity">Opportunity</option>
+                  <option value="spirit">Spirit</option>
+                  <option value="insight">InSight</option>
+                  <option value="viking">Viking</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Tipo de contenido</label>
+                <select class="form-control modern-select" id="roverMediaType">
+                  <option value="image">Imágenes</option>
+                  <option value="video">Videos</option>
+                  <option value="image,video">Ambos</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Cantidad</label>
+                <input type="number" class="form-control modern-input" id="roverPageSize" 
+                       value="20" min="5" max="100">
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-search">
+                  <i class="fas fa-rocket"></i> EXPLORAR
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section" id="statsSection" style="display: none;">
+    <div class="container">
+      <div class="row" id="statsContent">
+        <!-- Se llenará dinámicamente -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading Animation -->
+  <div class="loading-container" id="loadingContainer" style="display: none;">
+    <div class="mars-loader">
+      <div class="planet"></div>
+      <div class="orbit"></div>
+      <div class="satellite"></div>
+    </div>
+    <p class="loading-text">Explorando Marte...</p>
+  </div>
+
+  <!-- Galería de resultados -->
+  <section class="gallery-section">
+    <div class="container">
+      <div id="resultsHeader" style="display: none;">
+        <h2 class="results-title">
+          <i class="fas fa-images"></i> RESULTADOS DE LA EXPLORACIÓN
+        </h2>
+        <div class="results-info" id="resultsInfo"></div>
+      </div>
+      <div class="row" id="galleryResults">
+        <!-- Se llenará dinámicamente -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal para vista ampliada -->
+  <div class="modal fade" id="mediaModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content modern-modal">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Detalle de la imagen</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- Se llenará dinámicamente -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <a id="downloadBtn" href="#" download class="btn btn-primary">
+            <i class="fas fa-download"></i> Descargar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="modern-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-info">
+          <p><i class="fas fa-satellite"></i> Powered by NASA Images API</p>
+          <p class="footer-credits">Desarrollado por <a href="https://rosta.netlify.app/" target="_blank">RO-STA</a> © 2024</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://api.nasa.gov/" target="_blank"><i class="fas fa-link"></i> NASA API</a>
+          <a href="https://images.nasa.gov/" target="_blank"><i class="fas fa-globe"></i> NASA Images</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- jQuery CDN v3.3.1-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- Bootstrap Bundle v4.6.1 with Popper 1.16.1 -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"
+    integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2"
+    crossorigin="anonymous"></script>
+  <script src="assets/js/script.js"></script>
+</body>
+
+</html>
