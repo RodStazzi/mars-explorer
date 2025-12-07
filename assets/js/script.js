@@ -240,6 +240,9 @@ function displayResults(items, query, total) {
 // ============================================
 // MODAL DE DETALLE
 // ============================================
+// ============================================
+// MODAL DE DETALLE (CORREGIDO)
+// ============================================
 async function openMediaModal(index) {
   const item = currentResults[index];
   const data = item.data[0];
@@ -254,49 +257,78 @@ async function openMediaModal(index) {
   const photographer = data.photographer || 'N/A';
   const keywords = data.keywords ? data.keywords.join(', ') : 'N/A';
   
-  // URL del contenido
+  // 1. Mostrar modal cargando primero para dar feedback inmediato
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2">Obteniendo archivo de alta calidad...</p>
+    </div>
+  `;
+  $('#mediaModal').modal('show');
+
+  // URL por defecto (thumbnail)
   let mediaUrl = links.length > 0 ? links[0].href : '';
   let downloadUrl = mediaUrl;
-  
-  // Intentar obtener versión de mayor calidad
+
+  // 2. LÓGICA CRÍTICA: Obtener el archivo real (.mp4 o .jpg original)
   if (nasaId) {
     try {
       const assetUrl = `${NASA_API_BASE}/asset/${nasaId}`;
       const assetResponse = await fetch(assetUrl);
+      
       if (assetResponse.ok) {
         const assetData = await assetResponse.json();
-        if (assetData.collection && assetData.collection.items && assetData.collection.items.length > 0) {
-          // Obtener la URL de mayor calidad (generalmente la última)
-          const items = assetData.collection.items;
-          // Buscar la versión original o de mayor tamaño
-          const originalItem = items.find(i => i.href.includes('~orig')) || 
-                              items.find(i => i.href.includes('~large')) ||
-                              items[items.length - 1];
-          if (originalItem) {
-            downloadUrl = originalItem.href;
-            if (mediaType === 'image') {
-              mediaUrl = originalItem.href;
+        const items = assetData.collection?.items || [];
+
+        if (items.length > 0) {
+          if (mediaType === 'video') {
+            // === CORRECCIÓN PARA VIDEOS ===
+            // Buscamos específicamente el archivo que termine en .mp4
+            // Excluimos 'mobile' si queremos mejor calidad, o lo usamos si no hay otro
+            const videoItem = items.find(i => i.href.endsWith('.mp4') && !i.href.includes('mobile')) || 
+                              items.find(i => i.href.endsWith('.mp4'));
+            
+            if (videoItem) {
+              // IMPORTANTE: Forzar HTTPS para evitar errores de seguridad
+              mediaUrl = videoItem.href.replace('http:', 'https:');
+              downloadUrl = mediaUrl;
+            }
+          } else {
+            // === LÓGICA PARA IMÁGENES ===
+            const originalItem = items.find(i => i.href.includes('~orig')) || 
+                                 items.find(i => i.href.includes('~large')) ||
+                                 items[items.length - 1];
+            if (originalItem) {
+              mediaUrl = originalItem.href.replace('http:', 'https:');
+              downloadUrl = mediaUrl;
             }
           }
         }
       }
     } catch (error) {
-      console.error('Error fetching asset:', error);
+      console.error('Error fetching asset details:', error);
+      // Si falla, se queda con la mediaUrl por defecto
     }
   }
   
-  // Actualizar modal
-  document.getElementById('modalTitle').textContent = title;
-  
+  // 3. Generar el HTML final una vez tenemos la URL correcta
   let modalContent = '';
   
   if (mediaType === 'video') {
-    modalContent = `
-      <video controls class="modal-video">
-        <source src="${mediaUrl}" type="video/mp4">
-        Tu navegador no soporta el tag de video.
-      </video>
-    `;
+    // Verificamos si realmente encontramos un mp4
+    if (mediaUrl.includes('.mp4')) {
+      modalContent = `
+        <div class="embed-responsive embed-responsive-16by9">
+          <video controls autoplay class="embed-responsive-item">
+            <source src="${mediaUrl}" type="video/mp4">
+            Tu navegador no soporta el tag de video.
+          </video>
+        </div>
+      `;
+    } else {
+      modalContent = `<div class="alert alert-warning">No se pudo encontrar un formato de video compatible para reproducir.</div>`;
+    }
   } else {
     modalContent = `
       <img src="${mediaUrl}" alt="${escapeHtml(title)}" class="modal-image"
@@ -304,39 +336,39 @@ async function openMediaModal(index) {
     `;
   }
   
+  // Agregar la información textual
   modalContent += `
-    <div class="modal-info">
+    <div class="modal-info mt-3">
       <h6><i class="fas fa-info-circle"></i> Información del Contenido</h6>
       <div class="description-section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <strong>Descripción:</strong>
           <button class="btn btn-sm btn-info" onclick="translateDescription()" id="translateBtn" style="padding: 5px 15px; font-size: 0.85rem;">
-            <i class="fas fa-language"></i> Traducir al Español
+            <i class="fas fa-language"></i> Traducir
           </button>
         </div>
         <p id="descriptionText">${escapeHtml(description)}</p>
         <p id="translatedText" style="display: none; color: #00bcd4; border-left: 3px solid #00bcd4; padding-left: 15px; margin-top: 10px;"></p>
       </div>
-      <p><strong>NASA ID:</strong> ${nasaId}</p>
-      <p><strong>Fecha de creación:</strong> ${dateCreated}</p>
-      <p><strong>Centro:</strong> ${center}</p>
-      ${photographer !== 'N/A' ? `<p><strong>Fotógrafo:</strong> ${photographer}</p>` : ''}
-      <p><strong>Tipo de medio:</strong> ${mediaType.toUpperCase()}</p>
-      ${keywords !== 'N/A' ? `<p><strong>Palabras clave:</strong> ${keywords}</p>` : ''}
+      <div class="row mt-3">
+        <div class="col-md-6"><p><strong>NASA ID:</strong> ${nasaId}</p></div>
+        <div class="col-md-6"><p><strong>Fecha:</strong> ${dateCreated}</p></div>
+        <div class="col-md-6"><p><strong>Centro:</strong> ${center}</p></div>
+        <div class="col-md-6"><p><strong>Tipo:</strong> ${mediaType.toUpperCase()}</p></div>
+      </div>
     </div>
   `;
   
+  // Actualizar el DOM
   document.getElementById('modalBody').innerHTML = modalContent;
   
   // Actualizar botón de descarga
   const downloadBtn = document.getElementById('downloadBtn');
   downloadBtn.href = downloadUrl;
-  downloadBtn.download = `nasa_${nasaId}.${mediaType === 'video' ? 'mp4' : 'jpg'}`;
+  downloadBtn.setAttribute('download', ''); // Ayuda a forzar descarga en algunos navegadores
   
-  // Mostrar modal
-  $('#mediaModal').modal('show');
+  // Nota: El modal ya se mostró al inicio con el spinner, ahora solo se actualiza el contenido
 }
-
 // ============================================
 // ESTADÍSTICAS
 // ============================================
